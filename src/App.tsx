@@ -228,7 +228,7 @@ function App() {
         {/** V2 */}
         <audio ref={audioRef} controls>
           <source 
-            src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}.mp3`}
+            src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
             type="audio/mp3"
           />
         </audio>
