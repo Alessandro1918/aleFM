@@ -133,11 +133,11 @@ function App() {
   }
 
   function getTimeOfDayInPercentage(h: number, m: number, s:number) {
-    const currentTime = h * 0.01 + m * 0.0001 + s * 0.000001        //18:00:32 -> 0.180032
-    const absoluteTime = 23 * 0.01 + 59 * 0.0001 + 59 * 0.000001    //23:59:59 -> 0.235959
+    const currentTime = h * 0.01 + m * 100/60 * 0.0001 + s * 100/60 * 0.000001      //18:00:30 -> 0.180050
+    const absoluteTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001    //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
     console.log(`TODAY: ${currentTime} / ${absoluteTime} = ${100 * currentTime / absoluteTime}%`)
-                //TODAY: 0.180032 / 0.235959 = 76.29%
-    return currentTime / absoluteTime       // 0.7629
+                //TODAY: 0.180050 / 0.239999 = 75.02%
+    return currentTime / absoluteTime       // 0.7502
   }
 
   function findNextTrack(){
@@ -168,7 +168,7 @@ function App() {
         time = progress % 1             //0.75
 
         console.log(`NOW: ${progress}/${playlist.length} - Track: ${index}/${playlist.length} at ${Math.floor(time * 100)}%`)
-        //NOW: 1.75/200 - Track: 1/200 at 75%
+        //NOW: 1.75/200 - Track: 1/7 at 75%
       }
 
       //Get next track of the playlist
