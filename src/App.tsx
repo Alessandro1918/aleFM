@@ -2,8 +2,6 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { useState, useEffect, useRef } from 'react';
-//import { Play } from './components/Play'
-//import { Load } from './components/Load'
 
 interface Track {
   id: string;           //"2xplsy2dll8pouy"
@@ -138,8 +136,8 @@ function App() {
     const currentTime = h * 0.01 + m * 0.0001 + s * 0.000001        //18:00:32 -> 0.180032
     const absoluteTime = 23 * 0.01 + 59 * 0.0001 + 59 * 0.000001    //23:59:59 -> 0.235959
     console.log(`TODAY: ${currentTime} / ${absoluteTime} = ${100 * currentTime / absoluteTime}%`)
-    //          TODAY: 0.005208000000000001 / 0.235959 = 2.207163108845181%
-    return currentTime / absoluteTime                               // 0.75
+                //TODAY: 0.180032 / 0.235959 = 76.29%
+    return currentTime / absoluteTime       // 0.7629
   }
 
   function findNextTrack(){
@@ -167,10 +165,10 @@ function App() {
         const timeOfDayInPercentage = getTimeOfDayInPercentage(h, m, s)   //06:00 AM -> 0.25
         const progress = playlist.length * timeOfDayInPercentage          //25% of a 7 tracks list = 1.75
         index = Math.floor(progress)    //1
-        time = progress % 1             //0.75                            //comments for ex 1
+        time = progress % 1             //0.75
 
         console.log(`NOW: ${progress}/${playlist.length} - Track: ${index}/${playlist.length} at ${Math.floor(time * 100)}%`)
-        //          NOW: 4.414326217690362/200 - Track: 4/200 at 41%      //comments for ex 2
+        //NOW: 1.75/200 - Track: 1/200 at 75%
       }
 
       //Get next track of the playlist
@@ -215,7 +213,7 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Você está ouvindo a &nbsp;
-          <a className="App-link" href="ABC" target="_blank">AleFM</a>
+          <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
           , a melhor!
         </p>
         
@@ -230,7 +228,7 @@ function App() {
         {/** V2 */}
         <audio ref={audioRef} controls>
           <source 
-            src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
+            src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}.mp3`}
             type="audio/mp3"
           />
         </audio>
@@ -241,7 +239,7 @@ function App() {
             src={`${baseURL}${music.albumCover}`} 
             alt="album cover"
           />*/}
-          <p>{track?.name}</p>
+          <p>{track.name}</p>
         </div>
 
       </header>
