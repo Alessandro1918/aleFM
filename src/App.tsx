@@ -2,12 +2,21 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { useState, useEffect, useRef } from 'react';
+import { api } from './services/api';
 
 interface Track {
   id: string;           //"2xplsy2dll8pouy"
-  name: string;         //"Alice In Chains - Man In The Box.mp3"
+  name: string;         //"Alice In Chains - Man In The Box"
   index: number;        //0
   currentTime: number;  //242.34 (seconds)
+}
+
+interface Album {
+  title: string;  //"The Works"
+  artist: string; //"Queen"
+  year: string;   //"1984"
+  image: string;  //"https://rovimusic.rovicorp.com/image.jpg?c=YD1cN-_cz484qf9RigYGpphUoDg0hsvx4F4sL4oO-nA=&f=2"
+  //url: string;  //"the-works-mw0000191494"
 }
 
 function App() {
@@ -24,6 +33,15 @@ function App() {
     index: -1,
     currentTime: 0
   })
+
+  const [ album, setAlbum ] = useState<Album>({
+    title: '',
+    artist: '',
+    year: '',
+    image: ''
+  })
+
+  const [ isLoading, setIsLoading ] = useState(true)
   
   //V1
   //let audio = new Audio()
@@ -64,6 +82,8 @@ function App() {
 
       audioRef.current!.removeEventListener('canplaythrough', L1) //remove to re-attach later and get the updated useState vars
       
+      setIsLoading(false)
+
       //V1 - audio
       //audio.currentTime = audio.duration - 5   //n secs before finish
       //audio.play()
@@ -77,10 +97,13 @@ function App() {
     //L2 - 'ended'
     audioRef.current!.addEventListener('ended', function L2() {
       audioRef.current!.removeEventListener('ended', L2)        //remove to re-attach later and get the updated useState vars
+      setIsLoading(true)
       findNextTrack()
     })
 
     load()
+
+    getAlbumData()
 
   }, [track])
 
@@ -134,23 +157,19 @@ function App() {
 
   function getTimeOfDayInPercentage(h: number, m: number, s:number) {
     const currentTime = h * 0.01 + m * 100/60 * 0.0001 + s * 100/60 * 0.000001      //18:00:30 -> 0.180050
-    const absoluteTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001    //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
+    const absoluteTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001  //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
     console.log(`TODAY: ${currentTime} / ${absoluteTime} = ${100 * currentTime / absoluteTime}%`)
                 //TODAY: 0.180050 / 0.239999 = 75.02%
     return currentTime / absoluteTime       // 0.7502
   }
 
   function findNextTrack(){
-    //Hardcoded
-    //const fileId = "h8278j0vncmdsrp"
-    //const filename = "Airbourne - Its All For Rock N Roll.mp3"
 
-    //Programatically
     if (playlist.length > 0) {
 
       let index, time
 
-      //Get first tack of the playlist
+      //Get first track of the playlist
       if (track.index < 0) {
 
         //Random
@@ -178,6 +197,9 @@ function App() {
         time = 0
       }
 
+      //const id = "h8278j0vncmdsrp"
+      //const name = "Airbourne - Its All For Rock N Roll"
+      //const [id, name] = playlist[15].split('/')
       const [id, name] = playlist[index].split('/')
       const newTrack = {
         id: id, 
@@ -190,16 +212,45 @@ function App() {
   }
 
   function load() {
-    //V1 - audio
-    //let url = "https://www.dropbox.com/s/h8278j0vncmdsrp/Airbourne%20-%20Its%20All%20For%20Rock%20N%20Roll.mp3"
-    //url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
-    //const url = `https://dl.dropboxusercontent.com/s/${track?.id}/${track?.name.replace(/ /g, "%20")}`
-    //audio.src = url
 
-    //V2 - audioRef
-    audioRef.current?.load()
+    if (track.name) {
 
-    console.log(`Playing track ${track.index}: ${track.name}`)
+      //V1 - audio
+      //let url = "https://www.dropbox.com/s/h8278j0vncmdsrp/Airbourne%20-%20Its%20All%20For%20Rock%20N%20Roll.mp3"
+      //url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+      //const url = `https://dl.dropboxusercontent.com/s/${track?.id}/${track?.name.replace(/ /g, "%20")}`
+      //audio.src = url
+
+      //V2 - audioRef
+      audioRef.current?.load()
+
+      console.log(`Loading track ${track.index}: ${track.name}`)
+    }
+  }
+
+  //Query API for album data
+  async function getAlbumData() {
+    setAlbum({title: '', artist: '', year: '', image: ''})
+    if (track.name) {
+      const [ artist, title ] = track.name.split(' - ')
+      let { data } = await api.get(
+        'getAlbums', {
+          params: {
+            artist: artist, 
+            trackTitle: title.replace('\r', '')   // \r: "carriage return"
+          }
+        }
+      )
+      console.log(data[0]) 
+      if (data[0]) {
+        setAlbum({
+          artist: data[0].artist,
+          image: data[0].image,
+          title: data[0].title,
+          year: data[0].year
+        })
+      }
+    }
   }
 
 
@@ -210,37 +261,49 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+
+        {album.image == '' || album.image.includes('no_image')
+          ? <img src={logo} className="App-logo" alt="logo" />
+          : <img src={album.image} className="Album-art" alt="album-art" />  
+        }
+
+        {track.name
+          ? <p>{track.name}</p>
+          : <p>Carregando...</p>
+        }
+
+        {album.title && album.year
+          && <p>{`do álbum: ${album.title} (${album.year})`}</p>
+        }
+
+        {/*<img 
+            className={styles.albumCover} 
+            src={`${baseURL}${music.albumCover}`} 
+            alt="album cover"
+          />*/}
+        
         <p>
           Você está ouvindo a &nbsp;
           <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
           , a melhor!
         </p>
         
-        {/*<Play/>*/}
-
         {/*<button onClick={findNextTrack(false)}>
           <span>Play!</span>
         </button>*/}
 
         {/** V1 - No graphic elements */}
-
         {/** V2 */}
+        <p>(Clique em ▶ para iniciar a reprodução)</p>
+        {
+          isLoading && <p>Carregando...</p>
+        }
         <audio ref={audioRef} controls>
           <source 
             src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
             type="audio/mp3"
           />
         </audio>
-
-        <div>
-          {/*<img 
-            className={styles.albumCover} 
-            src={`${baseURL}${music.albumCover}`} 
-            alt="album cover"
-          />*/}
-          <p>{track.name}</p>
-        </div>
 
       </header>
     </div>
