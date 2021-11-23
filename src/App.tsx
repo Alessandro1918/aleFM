@@ -41,7 +41,7 @@ function App() {
     image: ''
   })
 
-  const [ isLoading, setIsLoading ] = useState(true)
+  //const [ isLoading, setIsLoading ] = useState(true)
   
   //V1
   //let audio = new Audio()
@@ -82,7 +82,7 @@ function App() {
 
       audioRef.current!.removeEventListener('canplaythrough', L1) //remove to re-attach later and get the updated useState vars
       
-      setIsLoading(false)
+      //setIsLoading(false)
 
       //V1 - audio
       //audio.currentTime = audio.duration - 5   //n secs before finish
@@ -96,8 +96,11 @@ function App() {
 
     //L2 - 'ended'
     audioRef.current!.addEventListener('ended', function L2() {
+      
       audioRef.current!.removeEventListener('ended', L2)        //remove to re-attach later and get the updated useState vars
-      setIsLoading(true)
+      
+      //setIsLoading(true)
+      
       findNextTrack()
     })
 
@@ -120,7 +123,7 @@ function App() {
     let files = lines.split('\n')		//txt to array
     console.log(`Loaded playlist with ${files.length} tracks`)
 
-    //Shuffles the list once a day
+    //Shuffles the list once a day, using 'day' as seed
     const day = new Date().getDate()  //yes, it's 'getDate', not 'getDay'
     files = shuffle(files, day)
     //console.log(files)
@@ -155,12 +158,14 @@ function App() {
     return array
   }
 
+  //06:00 AM -> 25% of the day passed
+  //06:00 PM -> 75% of the day passed
   function getTimeOfDayInPercentage(h: number, m: number, s:number) {
-    const currentTime = h * 0.01 + m * 100/60 * 0.0001 + s * 100/60 * 0.000001      //18:00:30 -> 0.180050
-    const absoluteTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001  //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
-    console.log(`TODAY: ${currentTime} / ${absoluteTime} = ${100 * currentTime / absoluteTime}%`)
+    const currentTime = h * 0.01 + m * 100/60 * 0.0001 + s * 100/60 * 0.000001    //18:00:30 -> 0.180050
+    const maxTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001     //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
+    console.log(`TODAY: ${currentTime} / ${maxTime} = ${100 * currentTime / maxTime}%`)
                 //TODAY: 0.180050 / 0.239999 = 75.02%
-    return currentTime / absoluteTime       // 0.7502
+    return currentTime / maxTime          // 0.7502
   }
 
   function findNextTrack(){
@@ -262,6 +267,12 @@ function App() {
     <div className="App">
       <header className="App-header">
 
+        <p>
+          Você está ouvindo a &nbsp;
+          <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
+          , a melhor!
+        </p>
+
         {album.image == '' || album.image.includes('no_image')
           ? <img src={logo} className="App-logo" alt="logo" />
           : <img src={album.image} className="Album-art" alt="album-art" />  
@@ -282,12 +293,6 @@ function App() {
             alt="album cover"
           />*/}
         
-        <p>
-          Você está ouvindo a &nbsp;
-          <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
-          , a melhor!
-        </p>
-        
         {/*<button onClick={findNextTrack(false)}>
           <span>Play!</span>
         </button>*/}
@@ -295,9 +300,7 @@ function App() {
         {/** V1 - No graphic elements */}
         {/** V2 */}
         <p>(Clique em ▶ para iniciar a reprodução)</p>
-        {
-          isLoading && <p>Carregando...</p>
-        }
+        
         <audio ref={audioRef} controls>
           <source 
             src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
