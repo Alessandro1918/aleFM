@@ -8,7 +8,7 @@ Uma rádio web tocando minhas músicas preferidas, 24h por dia!
 </p>
 
 ## ▶️ Play!:
-Confira em [https://ale-fm.herokuapp.com](https://ale-fm.herokuapp.com)
+Confira em [https://ale-fm.vercel.app](https://ale-fm.vercel.app)
 
 ## 🛠️ Tecnologias
 - [Node.js](https://nodejs.org/en/)
