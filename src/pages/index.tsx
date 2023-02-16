@@ -1,25 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import { useState, useEffect, useRef } from 'react';
-import { api } from './services/api';
+import { useState, useEffect, useRef } from 'react'
+import styles from '@/styles/Home.module.css'
+import { radioApi } from '../api/radioApi';
 
 interface Track {
-  id: string;           //"2xplsy2dll8pouy"
-  name: string;         //"Alice In Chains - Man In The Box"
-  index: number;        //0
-  currentTime: number;  //242.34 (seconds)
+  id: string            //"2xplsy2dll8pouy"
+  name: string          //"Alice In Chains - Man In The Box"
+  index: number         //0
+  currentTime: number   //242.34 (seconds)
 }
 
 interface Album {
-  title: string;  //"The Works"
-  artist: string; //"Queen"
-  year: string;   //"1984"
-  image: string;  //"https://rovimusic.rovicorp.com/image.jpg?c=YD1cN-_cz484qf9RigYGpphUoDg0hsvx4F4sL4oO-nA=&f=2"
-  //url: string;  //"the-works-mw0000191494"
+  title: string         //"The Works"
+  artist: string        //"Queen"
+  year: string          //"1984"
+  image: string         //"https://rovimusic.rovicorp.com/image.jpg?c=YD1cN-_cz484qf9RigYGpphUoDg0hsvx4F4sL4oO-nA=&f=2"
+  //url: string         //"the-works-mw0000191494"
 }
 
-function App() {
+export default function Home() {
 
   // **********
   // Constants
@@ -43,11 +41,12 @@ function App() {
 
   //const [ isLoading, setIsLoading ] = useState(true)
   
-  //V1
-  //let audio = new Audio()
+  //V1 - Audio Object
+  //let audio = new Audio() object
   //const [ audio ] = useState(new Audio())
-  //V2
+  //V2 - reference to html audio element
   const audioRef = useRef<HTMLAudioElement>(null)
+
 
 
   // **********
@@ -77,7 +76,7 @@ function App() {
 
   useEffect(() => {
     
-    //L1 - 'loadeddata' / 'canplaythrough'
+    //Add function "Listener1" to event "canplaythrough":
     audioRef.current!.addEventListener('canplaythrough', function L1() {
 
       audioRef.current!.removeEventListener('canplaythrough', L1) //remove to re-attach later and get the updated useState vars
@@ -85,16 +84,16 @@ function App() {
       //setIsLoading(false)
 
       //V1 - audio
-      //audio.currentTime = audio.duration - 5   //n secs before finish
+      //audio.currentTime = audio.duration - 5    //dev: set track 'n' secs before finish
       //audio.play()
 
       //V2 - audioRef
-      //audioRef.current!.currentTime = audioRef.current!.duration - 5   //n secs before finish
-      audioRef.current!.currentTime = audioRef.current!.duration * track.currentTime  //proper value
+      //audioRef.current!.currentTime = audioRef.current!.duration - 5                //dev: set track 'n' secs before finish
+      audioRef.current!.currentTime = audioRef.current!.duration * track.currentTime  //prod
       audioRef.current?.play()
     })
 
-    //L2 - 'ended'
+    //Add function "Listener2" to event "ended":
     audioRef.current!.addEventListener('ended', function L2() {
       
       audioRef.current!.removeEventListener('ended', L2)        //remove to re-attach later and get the updated useState vars
@@ -109,6 +108,7 @@ function App() {
     getAlbumData()
 
   }, [track])
+
 
 
   // **********
@@ -238,7 +238,7 @@ function App() {
     setAlbum({title: '', artist: '', year: '', image: ''})
     if (track.name) {
       const [ artist, title ] = track.name.split(' - ')
-      let { data } = await api.get(
+      let { data } = await radioApi.get(
         'getAlbums', {
           params: {
             artist: artist, 
@@ -259,58 +259,45 @@ function App() {
   }
 
 
+  
   // **********
   // HTML
   // **********
   
   return (
-    <div className="App">
-      <header className="App-header">
+    <div className={styles.main}>
 
-        <p>
-          Você está ouvindo a &nbsp;
-          <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
-          , a melhor!
-        </p>
+      <p>
+        Você está ouvindo a &nbsp;
+        <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
+        , a melhor!
+      </p>
 
-        {album.image == '' || album.image.includes('no_image')
-          ? <img src={logo} className="App-logo" alt="logo" />
-          : <img src={album.image} className="Album-art" alt="album-art" />  
-        }
+      {album.image == '' || album.image.includes('no_image')
+        ? <img src='/logo.svg' className={styles.defaultAlbumArt} alt="logo" />
+        : <img src={album.image} className={styles.albumArt} alt="album-art" />  
+      }
 
-        {track.name
-          ? <p>{track.name}</p>
-          : <p>Carregando...</p>
-        }
+      {track.name
+        ? <p>{track.name}</p>
+        : <p>Carregando...</p>
+      }
 
-        {album.title && album.year
-          && <p>{`do álbum: ${album.title} (${album.year})`}</p>
-        }
+      {album.title && album.year
+        && <p>{`do álbum: ${album.title} (${album.year})`}</p>
+      }
 
-        {/*<img 
-            className={styles.albumCover} 
-            src={`${baseURL}${music.albumCover}`} 
-            alt="album cover"
-          />*/}
-        
-        {/*<button onClick={findNextTrack(false)}>
-          <span>Play!</span>
-        </button>*/}
+      {/** V1 - No graphic elements */}
+      {/** V2 */}
+      <p>(Clique em ▶ para iniciar a reprodução)</p>
+      
+      <audio ref={audioRef} controls>
+        <source 
+          src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
+          type="audio/mp3"
+        />
+      </audio>
 
-        {/** V1 - No graphic elements */}
-        {/** V2 */}
-        <p>(Clique em ▶ para iniciar a reprodução)</p>
-        
-        <audio ref={audioRef} controls>
-          <source 
-            src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
-            type="audio/mp3"
-          />
-        </audio>
-
-      </header>
     </div>
   );
 }
-
-export default App;
