@@ -1,38 +1,22 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Ale FM
 
-## Getting Started
+## 🚀 Projeto
+Uma rádio web tocando minhas músicas preferidas, 24h por dia!
 
-First, run the development server:
+<p align="center">
+    <img src="github/home.png" alt="home" title="Homepage" width="75%"/>
+</p>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## ▶️ Play!:
+Confira em [https://ale-fm.herokuapp.com](https://ale-fm.herokuapp.com)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tecnologias
+- [Node.js](https://nodejs.org/en/)
+- [React](https://reactjs.org)
+- [TypeScript](https://www.typescriptlang.org/)
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 🧊 Cool features:
+- Uma função carrega os nomes de todas as musicas da minha pasta do Dropbox, montando uma variável 'playlist' com os links dos arquivos;
+- A playlist é embaralhada 1x por dia. Tenha sempre uma programação variada!
+- A hora do dia define o ponto da playlist que irá começar a tocar (ex: começou a ouvir as seis da tarde? Já passou 75% das músicas!)
+- Por fim, uma API busca as informações do álbum da música atual para exibir nomes, datas, e arte de capa!
