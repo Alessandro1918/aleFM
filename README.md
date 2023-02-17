@@ -20,3 +20,31 @@ Confira em [https://ale-fm.vercel.app](https://ale-fm.vercel.app)
 - A playlist é embaralhada 1x por dia. Tenha sempre uma programação variada!
 - A hora do dia define o ponto da playlist que irá começar a tocar (ex: começou a ouvir as seis da tarde? Já passou 75% das músicas!)
 - Por fim, uma API busca as informações do álbum da música atual para exibir nomes, datas, e arte de capa!
+
+## 🗂️ Utilização
+
+### 🐑🐑 Clonando o repositório:
+
+```bash
+  $ git clone url-do-projeto.git
+```
+
+### 🎵 Customizando a playlist:
+Crie um arquivo playlist.txt no seu Dropbox. Use o link de compartilhamento desse arquivo em <code>index.tsx</code>:
+```bash
+  const playlistUrl = "https://www.dropbox.com/s/ms2oldzgrkuquj4/playlist.txt?dl=0"
+```
+
+Preencha esse arquivo playlist.txt com a ID de compartilhamento e nome do arquivo de suas músicas do Dropbox:
+- Link do Dropbox: <code>https://www.dropbox.com/s/0br63l7o6o3yq8r/ACDC%20-%20Thunderstruck.mp3?dl=0</code>
+- playlist.txt: <code>0br63l7o6o3yq8r/ACDC - Thunderstruck</code>
+
+### ▶️ Rodando o App:
+
+```bash
+  $ cd aleFM
+  $ npm install             #download dependencies to node_modules
+  $ npm run dev             #start the project
+```
+
+Ver o projeto rodando em: [localhost:3000](http://localhost:3000)
