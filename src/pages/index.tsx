@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import styles from '@/styles/Home.module.css'
-import { radioApi } from '../api/radioApi';
+import { radioApi } from '../api/radioApi'
 
 interface Track {
   id: string            //"2xplsy2dll8pouy"
@@ -23,6 +23,8 @@ export default function Home() {
   // Constants
   // **********
   
+  const playlistUrl = "https://www.dropbox.com/s/ms2oldzgrkuquj4/playlist.txt?dl=0"
+
   const [ playlist, setPlaylist] = useState<string[]>([])
   
   const [ track, setTrack ] = useState<Track>({
@@ -83,7 +85,7 @@ export default function Home() {
       
       //setIsLoading(false)
 
-      //V1 - audio
+      //V1 - Audio obj
       //audio.currentTime = audio.duration - 5    //dev: set track 'n' secs before finish
       //audio.play()
 
@@ -116,8 +118,8 @@ export default function Home() {
   // **********
   
   async function getPlaylist() {
-    let url = "https://www.dropbox.com/s/ms2oldzgrkuquj4/playlist.txt?dl=0"
-    url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+    let url = playlistUrl
+    url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')   //make the link a direct download link
     const response = await fetch(url)
     const lines = await response.text()
     let files = lines.split('\n')		//txt to array
@@ -177,11 +179,11 @@ export default function Home() {
       //Get first track of the playlist
       if (track.index < 0) {
 
-        //Random
+        //Dev: get random track between 0 and n-1, passed it's half time
         //index = Math.floor(Math.random() * playlist.length)
         //time = 0.75
 
-        //Based on the time of the day
+        //Prod: Based on the time of the day
         const NOW = new Date()
         const h = NOW.getHours()
         const m = NOW.getMinutes()
@@ -192,7 +194,7 @@ export default function Home() {
         time = progress % 1             //0.75
 
         console.log(`NOW: ${progress}/${playlist.length} - Track: ${index}/${playlist.length} at ${Math.floor(time * 100)}%`)
-        //NOW: 1.75/200 - Track: 1/7 at 75%
+        //NOW: 1.75 / 7 - Track: 1/7 at 75%
       }
 
       //Get next track of the playlist
@@ -220,13 +222,15 @@ export default function Home() {
 
     if (track.name) {
 
-      //V1 - audio
+      //V1 - dev
       //let url = "https://www.dropbox.com/s/h8278j0vncmdsrp/Airbourne%20-%20Its%20All%20For%20Rock%20N%20Roll.mp3"
       //url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+      //audio.src = url
+      //V1 - prod
       //const url = `https://dl.dropboxusercontent.com/s/${track?.id}/${track?.name.replace(/ /g, "%20")}`
       //audio.src = url
 
-      //V2 - audioRef
+      //V2
       audioRef.current?.load()
 
       console.log(`Loading track ${track.index}: ${track.name}`)
@@ -268,8 +272,8 @@ export default function Home() {
     <div className={styles.main}>
 
       <p>
-        Você está ouvindo a &nbsp;
-        <a className="App-link" href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
+        Você está ouvindo a&nbsp;
+        <a className={styles.link} href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
         , a melhor!
       </p>
 

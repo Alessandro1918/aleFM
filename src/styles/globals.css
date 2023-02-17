@@ -1,3 +1,7 @@
+body, input, button, textarea {
+  font: 400 1.3rem Inter; 
+}
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
