@@ -204,13 +204,12 @@ export default function Home() {
         time = 0
       }
 
-      //const id = "h8278j0vncmdsrp"
-      //const name = "Airbourne - Its All For Rock N Roll"
+      //playlist: "h8278j0vncmdsrp - Airbourne - Its All For Rock N Roll", "..."
       //const [id, name] = playlist[15].split('/')
-      const [id, name] = playlist[index].split('/')
+      const [id, artist, title] = playlist[index].split(' - ')
       const newTrack = {
         id: id, 
-        name: name, 
+        name: artist + " - " + title,
         index: index,
         currentTime: time
       }
