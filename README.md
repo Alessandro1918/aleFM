@@ -21,7 +21,7 @@ Confira em [https://ale-fm.vercel.app](https://ale-fm.vercel.app)
 - A hora do dia define o ponto da playlist que irá começar a tocar (ex: começou a ouvir as seis da tarde? Já passou 75% das músicas!)
 - Por fim, uma API busca as informações do álbum da música atual para exibir nomes, datas, e arte de capa!
 
-## 🗂️ Utilização
+## 🗂️ Desenvolvimento:
 
 ### 🐑🐑 Clonando o repositório:
 
@@ -35,9 +35,11 @@ Crie um arquivo playlist.txt no seu Dropbox. Use o link de compartilhamento dess
   const playlistUrl = "https://www.dropbox.com/s/ms2oldzgrkuquj4/playlist.txt?dl=0"
 ```
 
-Preencha esse arquivo playlist.txt com a ID de compartilhamento e nome do arquivo de suas músicas do Dropbox:
+Preencha esse arquivo playlist.txt com o ID de compartilhamento e nome do arquivo de suas músicas do Dropbox:
 - Link do Dropbox: <code>https://www.dropbox.com/s/0br63l7o6o3yq8r/ACDC%20-%20Thunderstruck.mp3?dl=0</code>
-- playlist.txt: <code>0br63l7o6o3yq8r/ACDC - Thunderstruck</code>
+- playlist.txt: <code>0br63l7o6o3yq8r - ACDC - Thunderstruck</code>
+
+Dica: para obter o ID de compartilhamento de todas as músicas de uma pasta do seu Dropbox, use o script <code>utils/getDropboxLinks.js</code>. Funcionamento descrito no arquivo.
 
 ### ▶️ Rodando o App:
 
