@@ -39,3 +39,14 @@
   color: #61dafb;
   text-decoration: underline;
 }
+
+.playHint {
+  font-size: 12px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: left;
+}

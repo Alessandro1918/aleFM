@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import styles from '@/styles/Home.module.css'
 import { radioApi } from '../api/radioApi'
+import * as mm from 'music-metadata-browser'
 
 interface Track {
   id: string            //"2xplsy2dll8pouy"
@@ -40,6 +41,10 @@ export default function Home() {
     year: '',
     image: ''
   })
+  const [ albumDataApi, setAlbumDataApi ] = useState<Album>(album)
+  const [ albumDataMetadata, setAlbumDataMetadata ] = useState<Album>(album)
+
+  const [ isAlbumDataFromApi, setIsAlbumDataFromApi] = useState(false)
 
   //const [ isLoading, setIsLoading ] = useState(true)
   
@@ -68,8 +73,7 @@ export default function Home() {
   useEffect(() => {
 
     // I can't use addEventListeners here,
-    // they save an instance of the useState vars
-    // and don't update those values
+    // they save an instance of the useState vars and don't update those values
     //audio.addEventListener('canplaythrough', () => {...}
 
     findNextTrack()
@@ -105,12 +109,21 @@ export default function Home() {
       findNextTrack()
     })
 
-    load()
+    loadAudio()
 
     getAlbumData()
 
   }, [track])
 
+  useEffect(() => {
+
+    if (isAlbumDataFromApi) {
+      setAlbum(albumDataApi)
+    } else {
+      setAlbum(albumDataMetadata)
+    }
+
+  }, [albumDataApi, albumDataMetadata, isAlbumDataFromApi])
 
 
   // **********
@@ -217,7 +230,7 @@ export default function Home() {
     }
   }
 
-  function load() {
+  function loadAudio() {
 
     if (track.name) {
 
@@ -236,10 +249,13 @@ export default function Home() {
     }
   }
 
-  //Query API for album data
+
   async function getAlbumData() {
-    setAlbum({title: '', artist: '', year: '', image: ''})
+    setAlbumDataApi({title: '', artist: '', year: '', image: ''})
+    setAlbumDataMetadata({title: '', artist: '', year: '', image: ''})
+
     if (track.name) {
+      //Query API for album data
       const [ artist, title ] = track.name.split(' - ')
       let { data } = await radioApi.get(
         'getAlbums', {
@@ -249,15 +265,35 @@ export default function Home() {
           }
         }
       )
-      console.log(data[0]) 
+      console.log("From API:", data[0]) 
+
+      //Save in the state
       if (data[0]) {
-        setAlbum({
+        setAlbumDataApi({
           artist: data[0].artist,
           image: data[0].image,
           title: data[0].title,
           year: data[0].year
         })
       }
+
+      //Get metadata from file
+      const metadata = await mm.fetchFromUrl(`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`)
+      let albumCover = ''
+      if ("picture" in metadata.common) {
+        const b64 = Buffer.from(metadata.common.picture![0].data).toString('base64');
+        const mimeType = metadata.common.picture![0].format; // e.g., image/png
+        albumCover = `data:${mimeType};base64,${b64}`
+      }
+      console.log("From metadata:", metadata.common, albumCover)
+
+      //Save in the state
+      setAlbumDataMetadata({
+        artist: String(metadata.common.artist),
+        image: albumCover,
+        title: String(metadata.common.album),
+        year: String(metadata.common.year)
+      })
     }
   }
 
@@ -290,16 +326,33 @@ export default function Home() {
         && <p>{`do álbum: ${album.title} (${album.year})`}</p>
       }
 
-      {/** V1 - No graphic elements */}
-      {/** V2 */}
-      <p>(Clique em ▶ para iniciar a reprodução)</p>
-      
       <audio ref={audioRef} controls>
         <source 
           src={`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`}
           type="audio/mp3"
         />
       </audio>
+
+      {/** V1 - No graphic elements */}
+      {/** V2 */}
+      <p className={styles.playHint}>
+        (Clique em ▶ para iniciar a reprodução)
+      </p>
+
+      <div 
+        className={styles.radioGroup} 
+        onChange={() => setIsAlbumDataFromApi(!isAlbumDataFromApi)}
+      >
+        <label>Informações: </label>
+        <label title="Informações da música vindos de uma API customizada">
+          <input type="radio" checked={isAlbumDataFromApi} /> 
+          API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(?)
+        </label>
+        <label title="Informações da música vindos direto do arquivo">
+          <input type="radio" checked={!isAlbumDataFromApi} /> 
+          Metadados&nbsp;(?)
+        </label>
+      </div>
 
     </div>
   );

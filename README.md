@@ -19,7 +19,7 @@ Confira em [https://ale-fm.vercel.app](https://ale-fm.vercel.app)
 - Uma função carrega os nomes de todas as musicas da minha pasta do Dropbox, montando uma variável 'playlist' com os links dos arquivos;
 - A playlist é embaralhada 1x por dia. Tenha sempre uma programação variada!
 - A hora do dia define o ponto da playlist que irá começar a tocar (ex: começou a ouvir as seis da tarde? Já passou 75% das músicas!)
-- Por fim, uma API busca as informações do álbum da música atual para exibir nomes, datas, e arte de capa!
+- Por fim, uma API busca as informações do álbum da música atual para exibir nomes, datas, e arte de capa! As informações também podem ser lidas dos metadados do arquivo, se disponíveis
 
 ## 🗂️ Desenvolvimento:
 
