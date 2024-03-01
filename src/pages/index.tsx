@@ -43,10 +43,9 @@ export default function Home() {
     year: '',
     image: ''
   })
-  const [ albumDataApi, setAlbumDataApi ] = useState<Album>(album)
-  const [ albumDataMetadata, setAlbumDataMetadata ] = useState<Album>(album)
-
-  const [ isAlbumDataFromApi, setIsAlbumDataFromApi] = useState(false)
+  // const [ albumDataApi, setAlbumDataApi ] = useState<Album>(album)
+  // const [ albumDataMetadata, setAlbumDataMetadata ] = useState<Album>(album)
+  // const [ isAlbumDataFromApi, setIsAlbumDataFromApi] = useState(false)
 
   //const [ isLoading, setIsLoading ] = useState(true)
   
@@ -117,15 +116,13 @@ export default function Home() {
 
   }, [track])
 
-  useEffect(() => {
-
-    if (isAlbumDataFromApi) {
-      setAlbum(albumDataApi)
-    } else {
-      setAlbum(albumDataMetadata)
-    }
-
-  }, [albumDataApi, albumDataMetadata, isAlbumDataFromApi])
+  // useEffect(() => {
+  //   if (isAlbumDataFromApi) {
+  //     setAlbum(albumDataApi)
+  //   } else {
+  //     setAlbum(albumDataMetadata)
+  //   }
+  // }, [albumDataApi, albumDataMetadata, isAlbumDataFromApi])
 
 
   // **********
@@ -253,33 +250,34 @@ export default function Home() {
 
 
   async function getAlbumData() {
-    setAlbumDataApi({title: '', artist: '', year: '', image: ''})
-    setAlbumDataMetadata({title: '', artist: '', year: '', image: ''})
+    setAlbum({title: '', artist: '', year: '', image: ''})
+    // setAlbumDataApi({title: '', artist: '', year: '', image: ''})
+    // setAlbumDataMetadata({title: '', artist: '', year: '', image: ''})
 
     if (track.name) {
       //Query API for album data
-      const [ artist, title ] = track.name.split(' - ')
-      let { data } = await radioApi.get(
-        'getAlbums', {
-          params: {
-            artist: artist, 
-            trackTitle: title.replace('\r', '')   // \r: "carriage return"
-          }
-        }
-      )
-      console.log("From API:", data[0]) 
+      // const [ artist, title ] = track.name.split(' - ')
+      // let { data } = await radioApi.get(
+      //   'getAlbums', {
+      //     params: {
+      //       artist: artist, 
+      //       trackTitle: title.replace('\r', '')   // \r: "carriage return"
+      //     }
+      //   }
+      // )
+      // console.log("From API:", data[0]) 
 
       //Save in the state
-      if (data[0]) {
-        setAlbumDataApi({
-          artist: data[0].artist,
-          image: data[0].image,
-          title: data[0].title,
-          year: data[0].year
-        })
-      }
+      // if (data[0]) {
+      //   setAlbumDataApi({
+      //     artist: data[0].artist,
+      //     image: data[0].image,
+      //     title: data[0].title,
+      //     year: data[0].year
+      //   })
+      // }
 
-      //Get metadata from file
+      //Get metadata from audio file
       const metadata = await mm.fetchFromUrl(`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`)
       let albumCover = ''
       if ("picture" in metadata.common) {
@@ -287,10 +285,11 @@ export default function Home() {
         const mimeType = metadata.common.picture![0].format; // e.g., image/png
         albumCover = `data:${mimeType};base64,${b64}`
       }
-      console.log("From metadata:", metadata.common, albumCover)
+      console.log("From metadata:", metadata.common)
 
       //Save in the state
-      setAlbumDataMetadata({
+      // setAlbumDataMetadata({   //no more 2 states ("fromMetadata", "fromAPI"). Saves directly on the only state left
+      setAlbum({
         artist: String(metadata.common.artist),
         image: albumCover,
         title: String(metadata.common.album),
@@ -316,12 +315,12 @@ export default function Home() {
       </Head>
 
       <p>
-        Você está ouvindo a&nbsp;
+        Você está ouvindo a
         <a className={styles.link} href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
         , a melhor!
       </p>
 
-      {album.image == '' || album.image.includes('no_image')
+      {album.image == ''
         ? <img src='/logo.svg' className={styles.defaultAlbumArt} alt="logo" />
         : <img src={album.image} className={styles.albumArt} alt="album-art" />  
       }
@@ -348,7 +347,7 @@ export default function Home() {
         (Clique em ▶ para iniciar a reprodução)
       </p>
 
-      <div 
+      {/* <div 
         className={styles.radioGroup} 
         onChange={() => setIsAlbumDataFromApi(!isAlbumDataFromApi)}
       >
@@ -361,7 +360,7 @@ export default function Home() {
           <input type="radio" checked={!isAlbumDataFromApi} /> 
           Metadados&nbsp;(?)
         </label>
-      </div>
+      </div> */}
 
     </div>
   );
