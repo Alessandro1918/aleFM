@@ -10,18 +10,28 @@
   color: white;
 }
 
-.albumArt {
-  height: 40vmin;
+/* .albumArtDiv {
+  position: relative;
+} */
+
+/* logo.svg viewBox is a rectangle with an atom in the middle */
+/* Will have to move image to the side by a magic number of pixels */
+.albumArtPlaceholder {
+  height: 256px;
   pointer-events: none;
+  /* background-color: orange; */
+  /* position: absolute;
+  right: -53px; */
 }
 
-.defaultAlbumArt {
-  height: 40vmin;
+.albumArt {
+  height: 256px;
   pointer-events: none;
+  /* opacity: 0.7; */
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .defaultAlbumArt {
+  .albumArtPlaceholder {
     animation: custom-rotate-animation infinite 5s linear;
   }
 }
@@ -44,9 +54,9 @@
   font-size: 12px;
 }
 
-.radioGroup {
+/* .radioGroup {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: left;
-}
+} */
