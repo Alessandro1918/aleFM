@@ -84,9 +84,9 @@ export default function Home() {
   useEffect(() => {
     
     //Add function "Listener1" to event "canplaythrough":
-    audioRef.current!.addEventListener('canplaythrough', function L1() {
+    audioRef.current!.addEventListener("canplaythrough", function L1() {
 
-      audioRef.current!.removeEventListener('canplaythrough', L1) //remove to re-attach later and get the updated useState vars
+      audioRef.current!.removeEventListener("canplaythrough", L1) //remove to re-attach later and get the updated useState vars
       
       //setIsLoading(false)
 
@@ -101,9 +101,9 @@ export default function Home() {
     })
 
     //Add function "Listener2" to event "ended":
-    audioRef.current!.addEventListener('ended', function L2() {
+    audioRef.current!.addEventListener("ended", function L2() {
       
-      audioRef.current!.removeEventListener('ended', L2)        //remove to re-attach later and get the updated useState vars
+      audioRef.current!.removeEventListener("ended", L2)        //remove to re-attach later and get the updated useState vars
       
       //setIsLoading(true)
       
@@ -131,7 +131,7 @@ export default function Home() {
   
   async function getPlaylist() {
     let url = playlistUrl
-    url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')   //make the link a direct download link
+    url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com")   //make the link a direct download link
     const response = await fetch(url)
     const lines = await response.text()
     let files = lines.split('\n')		//txt to array
@@ -218,7 +218,7 @@ export default function Home() {
 
       //playlist: "h8278j0vncmdsrp - Airbourne - Its All For Rock N Roll", "..."
       //const [id, name] = playlist[15].split('/')
-      const [id, artist, title] = playlist[index].split(' - ')
+      const [id, artist, title] = playlist[index].split(" - ")
       const newTrack = {
         id: id, 
         name: artist + " - " + title,
@@ -281,8 +281,8 @@ export default function Home() {
       const metadata = await mm.fetchFromUrl(`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`)
       let albumCover = ''
       if ("picture" in metadata.common) {
-        const b64 = Buffer.from(metadata.common.picture![0].data).toString('base64');
-        const mimeType = metadata.common.picture![0].format; // e.g., image/png
+        const b64 = Buffer.from(metadata.common.picture![0].data).toString("base64")
+        const mimeType = metadata.common.picture![0].format // e.g., image/png
         albumCover = `data:${mimeType};base64,${b64}`
       }
       console.log("From metadata:", metadata.common)
@@ -315,15 +315,28 @@ export default function Home() {
       </Head>
 
       <p>
-        Você está ouvindo a
+        Você está ouvindo a {" "}
         <a className={styles.link} href="https://github.com/Alessandro1918/aleFM" target="_blank">Ale FM</a>
         , a melhor!
       </p>
 
-      {album.image == ''
-        ? <img src='/logo.svg' className={styles.defaultAlbumArt} alt="logo" />
-        : <img src={album.image} className={styles.albumArt} alt="album-art" />  
-      }
+      <div>
+        {/* I think this check is faster than the async setState. Will render spinning albumCover @ production: */}
+        {/* {
+          album.image === ''
+          ? <img src="/logo.svg" className={styles.albumArtPlaceholder} alt="logo" />
+          : <img src={album.image} className={styles.albumArt} alt="album-art" />
+        } */}
+        {/* This double check provides time to clear the previous albumArt, display the spinnigAtom, and display the new (frozen) albumCover */}
+        {
+          album.image === '' &&
+          <img src="/logo.svg" className={styles.albumArtPlaceholder} alt="logo" />
+        }
+        {
+          album.image !== '' &&
+          <img src={album.image} className={styles.albumArt} alt="album-art" />
+        }
+      </div>
 
       {track.name
         ? <p>{track.name}</p>
@@ -363,5 +376,5 @@ export default function Home() {
       </div> */}
 
     </div>
-  );
+  )
 }
