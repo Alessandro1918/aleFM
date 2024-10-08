@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef } from 'react'
-import * as mm from 'music-metadata-browser'
 import Head from 'next/head'
-
 import styles from '@/styles/Home.module.css'
-import { radioApi } from '../api/radioApi'
 
-interface Track {
+import { getMetadata } from "../functions/getMetadata"
+
+interface TrackProps {
   id: string            //"2xplsy2dll8pouy"
   name: string          //"Alice In Chains - Man In The Box"
   index: number         //0
   currentTime: number   //242.34 (seconds)
 }
 
-interface Album {
+interface AlbumProps {
   title: string         //"The Works"
   artist: string        //"Queen"
   year: string          //"1984"
@@ -30,24 +29,19 @@ export default function Home() {
 
   const [ playlist, setPlaylist] = useState<string[]>([])
   
-  const [ track, setTrack ] = useState<Track>({
+  const [ track, setTrack ] = useState<TrackProps>({
     id: '',
     name: '',
     index: -1,
     currentTime: 0
   })
 
-  const [ album, setAlbum ] = useState<Album>({
+  const [ album, setAlbum ] = useState<AlbumProps>({
     title: '',
     artist: '',
     year: '',
     image: ''
   })
-  // const [ albumDataApi, setAlbumDataApi ] = useState<Album>(album)
-  // const [ albumDataMetadata, setAlbumDataMetadata ] = useState<Album>(album)
-  // const [ isAlbumDataFromApi, setIsAlbumDataFromApi] = useState(false)
-
-  //const [ isLoading, setIsLoading ] = useState(true)
   
   //V1 - Audio Object
   //let audio = new Audio() object
@@ -87,8 +81,6 @@ export default function Home() {
     audioRef.current!.addEventListener("canplaythrough", function L1() {
 
       audioRef.current!.removeEventListener("canplaythrough", L1) //remove to re-attach later and get the updated useState vars
-      
-      //setIsLoading(false)
 
       //V1 - Audio obj
       //audio.currentTime = audio.duration - 5    //dev: set track 'n' secs before finish
@@ -105,25 +97,21 @@ export default function Home() {
       
       audioRef.current!.removeEventListener("ended", L2)        //remove to re-attach later and get the updated useState vars
       
-      //setIsLoading(true)
-      
       findNextTrack()
     })
 
     loadAudio()
 
-    getAlbumData()
+    //Update state with audio data
+    setAlbum({title: '', artist: '', year: '', image: ''})
+    getMetadata({fileId: track.id, fileName: track.name})
+    .then( ({title, artist, year, image}) => {
+      if (track.name) {
+        setAlbum({ title, artist, year, image })
+      }
+    })
 
   }, [track])
-
-  // useEffect(() => {
-  //   if (isAlbumDataFromApi) {
-  //     setAlbum(albumDataApi)
-  //   } else {
-  //     setAlbum(albumDataMetadata)
-  //   }
-  // }, [albumDataApi, albumDataMetadata, isAlbumDataFromApi])
-
 
   // **********
   // Functions
@@ -249,57 +237,7 @@ export default function Home() {
   }
 
 
-  async function getAlbumData() {
-    setAlbum({title: '', artist: '', year: '', image: ''})
-    // setAlbumDataApi({title: '', artist: '', year: '', image: ''})
-    // setAlbumDataMetadata({title: '', artist: '', year: '', image: ''})
 
-    if (track.name) {
-      //Query API for album data
-      // const [ artist, title ] = track.name.split(' - ')
-      // let { data } = await radioApi.get(
-      //   'getAlbums', {
-      //     params: {
-      //       artist: artist, 
-      //       trackTitle: title.replace('\r', '')   // \r: "carriage return"
-      //     }
-      //   }
-      // )
-      // console.log("From API:", data[0]) 
-
-      //Save in the state
-      // if (data[0]) {
-      //   setAlbumDataApi({
-      //     artist: data[0].artist,
-      //     image: data[0].image,
-      //     title: data[0].title,
-      //     year: data[0].year
-      //   })
-      // }
-
-      //Get metadata from audio file
-      const metadata = await mm.fetchFromUrl(`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`)
-      let albumCover = ''
-      if ("picture" in metadata.common) {
-        const b64 = Buffer.from(metadata.common.picture![0].data).toString("base64")
-        const mimeType = metadata.common.picture![0].format // e.g., image/png
-        albumCover = `data:${mimeType};base64,${b64}`
-      }
-      console.log("From metadata:", metadata.common)
-
-      //Save in the state
-      // setAlbumDataMetadata({   //no more 2 states ("fromMetadata", "fromAPI"). Saves directly on the only state left
-      setAlbum({
-        artist: String(metadata.common.artist),
-        image: albumCover,
-        title: String(metadata.common.album),
-        year: String(metadata.common.year)
-      })
-    }
-  }
-
-
-  
   // **********
   // HTML
   // **********
