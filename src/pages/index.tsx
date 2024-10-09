@@ -3,6 +3,7 @@ import Head from 'next/head'
 import styles from '@/styles/Home.module.css'
 
 import { getMetadata } from "../functions/getMetadata"
+import { getPlaylist } from "../functions/getPlaylist"
 
 interface TrackProps {
   id: string            //"2xplsy2dll8pouy"
@@ -24,8 +25,6 @@ export default function Home() {
   // **********
   // Constants
   // **********
-  
-  const playlistUrl = "https://www.dropbox.com/s/ms2oldzgrkuquj4/playlist.txt?dl=0"
 
   const [ playlist, setPlaylist] = useState<string[]>([])
   
@@ -58,6 +57,9 @@ export default function Home() {
   useEffect(() => {
     if (playlist.length === 0) {
       getPlaylist()
+      .then(playlist => {
+        setPlaylist(playlist)
+      })
     }
   }, [])
 
@@ -100,7 +102,21 @@ export default function Home() {
       findNextTrack()
     })
 
-    loadAudio()
+    //Load audio to the HTML component
+    if (track.name) {
+      //V1 - dev
+      //let url = "https://www.dropbox.com/s/h8278j0vncmdsrp/Airbourne%20-%20Its%20All%20For%20Rock%20N%20Roll.mp3"
+      //url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+      //audio.src = url
+      //V1 - prod
+      //const url = `https://dl.dropboxusercontent.com/s/${track?.id}/${track?.name.replace(/ /g, "%20")}`
+      //audio.src = url
+
+      //V2
+      audioRef.current?.load()
+
+      console.log(`Loading track ${track.index}: ${track.name}`)
+    }
 
     //Update state with audio data
     setAlbum({title: '', artist: '', year: '', image: ''})
@@ -117,48 +133,7 @@ export default function Home() {
   // Functions
   // **********
   
-  async function getPlaylist() {
-    let url = playlistUrl
-    url = url.replace("www.dropbox.com", "dl.dropboxusercontent.com")   //make the link a direct download link
-    const response = await fetch(url)
-    const lines = await response.text()
-    let files = lines.split('\n')		//txt to array
-    console.log(`Loaded playlist with ${files.length} tracks`)
 
-    //Shuffles the list once a day, using 'day' as seed
-    const day = new Date().getDate()  //yes, it's 'getDate', not 'getDay'
-    files = shuffle(files, day)
-    //console.log(files)
-    setPlaylist(files)
-  }
-
-  //Shuffles an array always the same way, if given the same seed
-  //https://stackoverflow.com/questions/16801687/javascript-random-ordering-with-seed
-  function shuffle(array:string[], seed:number) {
-
-    function random(seed: number) {
-      var x = Math.sin(seed++) * 10000; 
-      return x - Math.floor(x);
-    }
-
-    let m = array.length
-    let t
-    let i
-    
-    // While remains elements to shuffle
-    while (m) {
-
-      // Pick a remaining element
-      i = Math.floor(random(seed) * m--)
-
-      // And swap it with the current element
-      t = array[m]
-      array[m] = array[i]
-      array[i] = t
-      ++seed
-    }
-    return array
-  }
 
   //06:00 AM -> 25% of the day passed
   //06:00 PM -> 75% of the day passed
@@ -214,25 +189,6 @@ export default function Home() {
         currentTime: time
       }
       setTrack(newTrack)
-    }
-  }
-
-  function loadAudio() {
-
-    if (track.name) {
-
-      //V1 - dev
-      //let url = "https://www.dropbox.com/s/h8278j0vncmdsrp/Airbourne%20-%20Its%20All%20For%20Rock%20N%20Roll.mp3"
-      //url = url.replace('www.dropbox.com', 'dl.dropboxusercontent.com')
-      //audio.src = url
-      //V1 - prod
-      //const url = `https://dl.dropboxusercontent.com/s/${track?.id}/${track?.name.replace(/ /g, "%20")}`
-      //audio.src = url
-
-      //V2
-      audioRef.current?.load()
-
-      console.log(`Loading track ${track.index}: ${track.name}`)
     }
   }
 
