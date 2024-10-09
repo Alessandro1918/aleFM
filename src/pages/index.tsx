@@ -4,6 +4,7 @@ import styles from '@/styles/Home.module.css'
 
 import { getMetadata } from "../functions/getMetadata"
 import { getPlaylist } from "../functions/getPlaylist"
+import { getNextTrack } from "../functions/getNextTrack"
 
 interface TrackProps {
   id: string            //"2xplsy2dll8pouy"
@@ -17,7 +18,6 @@ interface AlbumProps {
   artist: string        //"Queen"
   year: string          //"1984"
   image: string         //"https://rovimusic.rovicorp.com/image.jpg?c=YD1cN-_cz484qf9RigYGpphUoDg0hsvx4F4sL4oO-nA=&f=2"
-  //url: string         //"the-works-mw0000191494"
 }
 
 export default function Home() {
@@ -48,8 +48,6 @@ export default function Home() {
   //V2 - reference to html audio element
   const audioRef = useRef<HTMLAudioElement>(null)
 
-
-
   // **********
   // useEffects
   // **********
@@ -73,7 +71,10 @@ export default function Home() {
     // they save an instance of the useState vars and don't update those values
     //audio.addEventListener('canplaythrough', () => {...}
 
-    findNextTrack()
+    if (playlist.length > 0) {
+      const nextTrack = getNextTrack(playlist, track.index)
+      setTrack(nextTrack)
+    }
 
   }, [playlist])
 
@@ -99,7 +100,10 @@ export default function Home() {
       
       audioRef.current!.removeEventListener("ended", L2)        //remove to re-attach later and get the updated useState vars
       
-      findNextTrack()
+      if (playlist.length > 0) {
+        const nextTrack = getNextTrack(playlist, track.index)
+        setTrack(nextTrack)
+      }
     })
 
     //Load audio to the HTML component
@@ -128,71 +132,6 @@ export default function Home() {
     })
 
   }, [track])
-
-  // **********
-  // Functions
-  // **********
-  
-
-
-  //06:00 AM -> 25% of the day passed
-  //06:00 PM -> 75% of the day passed
-  function getTimeOfDayInPercentage(h: number, m: number, s:number) {
-    const currentTime = h * 0.01 + m * 100/60 * 0.0001 + s * 100/60 * 0.000001    //18:00:30 -> 0.180050
-    const maxTime = 23 * 0.01 + 59 * 100/60 * 0.0001 + 59 * 100/60 * 0.000001     //23:59:59 -> 0.239999 -> the "100/60" normalizes the 60 min / hour into a 1.00 hour
-    console.log(`TODAY: ${currentTime} / ${maxTime} = ${100 * currentTime / maxTime}%`)
-                //TODAY: 0.180050 / 0.239999 = 75.02%
-    return currentTime / maxTime          // 0.7502
-  }
-
-  function findNextTrack(){
-
-    if (playlist.length > 0) {
-
-      let index, time
-
-      //Get first track of the playlist
-      if (track.index < 0) {
-
-        //Dev: get random track between 0 and n-1, passed it's half time
-        //index = Math.floor(Math.random() * playlist.length)
-        //time = 0.75
-
-        //Prod: Based on the time of the day
-        const NOW = new Date()
-        const h = NOW.getHours()
-        const m = NOW.getMinutes()
-        const s = NOW.getSeconds()
-        const timeOfDayInPercentage = getTimeOfDayInPercentage(h, m, s)   //06:00 AM -> 0.25
-        const progress = playlist.length * timeOfDayInPercentage          //25% of a 7 tracks list = 1.75
-        index = Math.floor(progress)    //1
-        time = progress % 1             //0.75
-
-        console.log(`NOW: ${progress}/${playlist.length} - Track: ${index}/${playlist.length} at ${Math.floor(time * 100)}%`)
-        //NOW: 1.75 / 7 - Track: 1/7 at 75%
-      }
-
-      //Get next track of the playlist
-      else {
-        index = track.index + 1
-        if (index === playlist.length) {index = 0}
-        time = 0
-      }
-
-      //playlist: "h8278j0vncmdsrp - Airbourne - Its All For Rock N Roll", "..."
-      //const [id, name] = playlist[15].split('/')
-      const [id, artist, title] = playlist[index].split(" - ")
-      const newTrack = {
-        id: id, 
-        name: artist + " - " + title,
-        index: index,
-        currentTime: time
-      }
-      setTrack(newTrack)
-    }
-  }
-
-
 
   // **********
   // HTML
@@ -253,22 +192,6 @@ export default function Home() {
       <p className={styles.playHint}>
         (Clique em ▶ para iniciar a reprodução)
       </p>
-
-      {/* <div 
-        className={styles.radioGroup} 
-        onChange={() => setIsAlbumDataFromApi(!isAlbumDataFromApi)}
-      >
-        <label>Informações: </label>
-        <label title="Informações da música vindas de uma API customizada">
-          <input type="radio" checked={isAlbumDataFromApi} /> 
-          API&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(?)
-        </label>
-        <label title="Informações da música vindas direto do arquivo">
-          <input type="radio" checked={!isAlbumDataFromApi} /> 
-          Metadados&nbsp;(?)
-        </label>
-      </div> */}
-
     </div>
   )
 }
