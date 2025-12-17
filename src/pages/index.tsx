@@ -277,7 +277,7 @@ export default function Home() {
       const metadata = await mm.fetchFromUrl(`https://dl.dropboxusercontent.com/s/${track.id}/${track.name.replace(/ /g, "%20")}`)
       let albumCover = ''
       if ("picture" in metadata.common) {
-        const b64 = Buffer.from(metadata.common.picture![0].data).toString("base64")
+        const b64 = Buffer.from(metadata.common.picture![0].data.toString("base64"))
         const mimeType = metadata.common.picture![0].format // e.g., image/png
         albumCover = `data:${mimeType};base64,${b64}`
       }
